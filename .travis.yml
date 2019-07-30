@@ -1,3 +1,7 @@
+env:
+  global:
+    - secure: "GYBNMSqyh4aCcMA3YULbF0IbK4x0NWbGqTtz4Ufgb+SCZGsZBK2bqJBRSNSsyOys0Ssmqyp+x1Xtd8J52E75VQToT05jN9lAmADC3wx6ySDNOFNGjNwgpDxcFxIFqNehtdngofywyH1WyindiPABlHSJhjY1eC5pGs7ABmv8iOvxT2H19Or6Af8pFJosDdvx2T8u1dnDWORlQ2HyZu7Hrsn6WojwoHCo5OCuRHo9ek8Z9lpOS3EJOdr/112cnJ21lrPe7IykgBnEnTRgmvR3ae/n4wHjIMQQ1x72tTVSRKEK0MFfQbNTMOv1Pt/GXL5i4OQgXnId20/c5SS3d2re+e3W7U4a8ChktX5ODZB/TNYoLnMPosSAnzGA+vaVtGlbUZ3qUueIxHgN7jppBnV3Zold+YPU9C15tOgZsQ2NX7MjGZvjN0q+mUGEfuJ8hsDW6EayIzVCZj8l7jfhelOar+6k0t47Y2AvfD4sa22IvApAtLmij+h8huMBlehu7gSuQYGRTbfcfOOk+qxQ+Ow2qLKZzxfotS74gDbotx97c5ewyNdJ7vsTBvOhTHd7glAS/XhUHFYoaKTnQZgNsKuUAYmJC2xFSvEvNu/dwTV+rcDbc8B9ESJCL8lUJnD3xQ7Yo5fq7GN3hComujHcT4D50osNR4KWfIRP4HavX2MZG3Q="
+
 language: cpp
 matrix:
   include:
@@ -35,11 +39,11 @@ notifications:
 osx_image: xcode9.3
 
 before_deploy:
-  - git config --local user.name "Saqoosha"
-  - git config --local user.email "a@saqoo.sh"
+  - git config --global user.name "Travis CI"
+  - git config --global user.email "travis@travis-ci.org"
   - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - git tag $TRAVIS_TAG
-  - git push origin $TRAVIS_TAG
+  - git tag $TRAVIS_TAG -a -m "Commit from Travis CI for build $TRAVIS_BUILD_NUMBER"
+  - git push --quiet https://$GH_TOKEN@github.com/Saqoosha/bgfx.git --tags 2> /dev/null
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       tar -acvf linux-${TRAVIS_TAG}.tar.gz -C .build/linux64_gcc/bin/ .
     fi
@@ -47,8 +51,9 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: "ilxh9QyBEYSD6IrEvKEZHk+p7cfScqvhtaOh+0Y+0CPNewFDu9dee9C1Y9NrsIJxxvpPiD2+Kd6JY4WWGV6sO95qcQZsdt7esGPlf5MfzZ8cp1c8gVyH01DJbk9xJBwVARnDYofKE4qEvVCVF8+Bpg91pZviHYTkYpkiklfEt3hX6jQN3cZVXr8JwXjXVa6TFxZ0p/bgujw3tIv20tBl/+p5FX3qDbyX260+32eEFrcXQlNkwaYZeWYrOMx4PfRo+M4/7sHQUEk73PmH3dkhnDyrOWK0G7QAUfOI7yc+EFuHKhCnnfFWn+MfjIhiNbMBZlspByVDLvJLYlbyIk6xF0hRnMsTU+tylVU3KA3368ySrRHzY5vzTA4JVKnO46ye+TNG7XXJy9gFA+yACWCoglxjyKSzSszTxh8tpUWwt9oUrwXUtbWUDLlCPVMwnd6tLmIB1t7Ciihq0bLuPvNVFma+yKWpp7s4LW0WjItL2z5eNFVBzbJhSnN2WmcT6R39UpJAm4i+uJoEMlyrZELqe845P0lVYk3ufcb35OsxYS4T5tF6uWrele+M7B6dSJpGPa7fXY6VEKa+9MZBBQpiqcfF+ZMBl+x1maTJmhpluEV+11kmtcI0qEOQPxRUVD6jybvU65xaqE85EIoBTsOZYB+w041HLqLaGXwQ3FbxjBQ="
+    secure: "METKXgu8f0Xx4wO1TBnDGUoJP/0ipqU0LibB1Q5VW3Z/zCAUgEOwjaoMEMvkkBXyWwxRFf/5Rp0uaCK8tR9W0tBw8cyI9pupiNatNRL6J5HYv5ytGLYrY4BRo7CtsYEwdWDeyQ7VW0lOeRIxbD30EdffhxD/CjCtZk4YHPcZdaAr932ym18/qv925ji8iDdzzWFtUWhqTOn+aH6zY5ua23CPub5W+R/RDK3Kfvs68bZuUlzUsR/HvT+4TFpWmy8lcfOigCSVQMeEWsAkPBlOQ1YCuWSROzWH8HT+d8AsRX7xZMj37c8SiYUmTQfoUBHbF7D9giEePxkWDjS/uqvoNV2BTuEVuthsZXxG15cQ8uiobEYSp2Rg9jgu121IObyvuIPYHqKvrr7qZgcQQPIypVrzV3SBlMQdJSNbCAnAzoSoG9ItgecUEcDwLgV12L69d08cY513ru1NtRKnGRMEFnDB3urfewG9lK+ek5g2qRSe5FZLAmgY+Tad4H/lxkoe7GA5/zgq0Tr2uINKuo94yC+OodRRY71d2FIaDeDRM4iqRRCEPqMtTLYjLtYaejbnm+5tPy7efcSaD5ywjVddtWDKJk5OBSFHMC4UuTKpED8GhdHdsufXeuC3fOm2bE8+d0bhOdVJhCA//WDfYAiiDqtEXPCMAmeot4qpJRsKM4k="
   file: linux-${TRAVIS_TAG}.tar.gz
   skip_cleanup: true
   on:
-    tags: true
+    tags: false
+    branch: master
