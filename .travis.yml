@@ -35,11 +35,14 @@ notifications:
 osx_image: xcode9.3
 
 before_deploy:
-  - git config --local user.name "YOUR GIT USER NAME"
-  - git config --local user.email "YOUR GIT USER EMAIL"
+  - git config --local user.name "Saqoosha"
+  - git config --local user.email "a@saqoo.sh"
   - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
   - git tag $TRAVIS_TAG
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar -acvf linux-${TRAVIS_TAG}.tar.gz -C .build/linux64_gcc/bin/ .; fi
+  - git push origin $TRAVIS_TAG
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      tar -acvf linux-${TRAVIS_TAG}.tar.gz -C .build/linux64_gcc/bin/ .
+    fi
 
 deploy:
   provider: releases
