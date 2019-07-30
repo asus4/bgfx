@@ -41,7 +41,7 @@ osx_image: xcode9.3
 before_deploy:
   - git config --global user.name "Travis CI"
   - git config --global user.email "travis@travis-ci.org"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - export TRAVIS_TAG=$(date +'%Y%m%d')-$(git log --format=%h -1)
   - git tag $TRAVIS_TAG -a -m "Commit from Travis CI for build $TRAVIS_BUILD_NUMBER"
   - git push --quiet https://$GH_TOKEN@github.com/Saqoosha/bgfx.git --tags 2> /dev/null
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
@@ -49,7 +49,7 @@ before_deploy:
       tar -acvf ${ARTIFACT_NAME} -C .build/linux64_gcc/bin/ .;
     elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
       export ARTIFACT_NAME=macos-${TRAVIS_TAG}.tar.gz;
-      tar -acvf ${ARTIFACT_NAME} -C .build/osx64_clang/bin/ .;
+      tar zcvf ${ARTIFACT_NAME} -C .build/osx64_clang/bin/ .;
     fi
 
 deploy:
