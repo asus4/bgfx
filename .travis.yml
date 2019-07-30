@@ -45,14 +45,18 @@ before_deploy:
   - git tag $TRAVIS_TAG -a -m "Commit from Travis CI for build $TRAVIS_BUILD_NUMBER"
   - git push --quiet https://$GH_TOKEN@github.com/Saqoosha/bgfx.git --tags 2> /dev/null
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      tar -acvf linux-${TRAVIS_TAG}.tar.gz -C .build/linux64_gcc/bin/ .
+      export ARTIFACT_NAME=linux-${TRAVIS_TAG}.tar.gz
+      tar -acvf ${ARTIFACT_NAME} -C .build/linux64_gcc/bin/ .;
+    elif [ "$TRAVIS_OS_NAME" == "osx" ];
+      export ARTIFACT_NAME=macos-${TRAVIS_TAG}.tar.gz
+      tar -acvf ${ARTIFACT_NAME} -C .build/osx64_clang/bin/ .;
     fi
 
 deploy:
   provider: releases
   api_key:
     secure: "METKXgu8f0Xx4wO1TBnDGUoJP/0ipqU0LibB1Q5VW3Z/zCAUgEOwjaoMEMvkkBXyWwxRFf/5Rp0uaCK8tR9W0tBw8cyI9pupiNatNRL6J5HYv5ytGLYrY4BRo7CtsYEwdWDeyQ7VW0lOeRIxbD30EdffhxD/CjCtZk4YHPcZdaAr932ym18/qv925ji8iDdzzWFtUWhqTOn+aH6zY5ua23CPub5W+R/RDK3Kfvs68bZuUlzUsR/HvT+4TFpWmy8lcfOigCSVQMeEWsAkPBlOQ1YCuWSROzWH8HT+d8AsRX7xZMj37c8SiYUmTQfoUBHbF7D9giEePxkWDjS/uqvoNV2BTuEVuthsZXxG15cQ8uiobEYSp2Rg9jgu121IObyvuIPYHqKvrr7qZgcQQPIypVrzV3SBlMQdJSNbCAnAzoSoG9ItgecUEcDwLgV12L69d08cY513ru1NtRKnGRMEFnDB3urfewG9lK+ek5g2qRSe5FZLAmgY+Tad4H/lxkoe7GA5/zgq0Tr2uINKuo94yC+OodRRY71d2FIaDeDRM4iqRRCEPqMtTLYjLtYaejbnm+5tPy7efcSaD5ywjVddtWDKJk5OBSFHMC4UuTKpED8GhdHdsufXeuC3fOm2bE8+d0bhOdVJhCA//WDfYAiiDqtEXPCMAmeot4qpJRsKM4k="
-  file: linux-${TRAVIS_TAG}.tar.gz
+  file: ${ARTIFACT_NAME}
   skip_cleanup: true
   on:
     tags: false
