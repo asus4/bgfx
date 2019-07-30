@@ -35,12 +35,17 @@ notifications:
 osx_image: xcode9.3
 
 before_deploy:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar -acvf linux.tar.gz -C .build/linux64_gcc/bin/ .; fi
+  - git config --local user.name "YOUR GIT USER NAME"
+  - git config --local user.email "YOUR GIT USER EMAIL"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_TAG
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar -acvf linux-${TRAVIS_TAG}.tar.gz -C .build/linux64_gcc/bin/ .; fi
 
 deploy:
   provider: releases
   api_key:
     secure: "ilxh9QyBEYSD6IrEvKEZHk+p7cfScqvhtaOh+0Y+0CPNewFDu9dee9C1Y9NrsIJxxvpPiD2+Kd6JY4WWGV6sO95qcQZsdt7esGPlf5MfzZ8cp1c8gVyH01DJbk9xJBwVARnDYofKE4qEvVCVF8+Bpg91pZviHYTkYpkiklfEt3hX6jQN3cZVXr8JwXjXVa6TFxZ0p/bgujw3tIv20tBl/+p5FX3qDbyX260+32eEFrcXQlNkwaYZeWYrOMx4PfRo+M4/7sHQUEk73PmH3dkhnDyrOWK0G7QAUfOI7yc+EFuHKhCnnfFWn+MfjIhiNbMBZlspByVDLvJLYlbyIk6xF0hRnMsTU+tylVU3KA3368ySrRHzY5vzTA4JVKnO46ye+TNG7XXJy9gFA+yACWCoglxjyKSzSszTxh8tpUWwt9oUrwXUtbWUDLlCPVMwnd6tLmIB1t7Ciihq0bLuPvNVFma+yKWpp7s4LW0WjItL2z5eNFVBzbJhSnN2WmcT6R39UpJAm4i+uJoEMlyrZELqe845P0lVYk3ufcb35OsxYS4T5tF6uWrele+M7B6dSJpGPa7fXY6VEKa+9MZBBQpiqcfF+ZMBl+x1maTJmhpluEV+11kmtcI0qEOQPxRUVD6jybvU65xaqE85EIoBTsOZYB+w041HLqLaGXwQ3FbxjBQ="
-  file: linux.tar.gz
+  file: linux-${TRAVIS_TAG}.tar.gz
   skip_cleanup: true
-  draft: true
+  on:
+  	tags: true
