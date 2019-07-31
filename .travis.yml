@@ -38,13 +38,12 @@ script:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then make build; fi
 
 before_deploy:
+  - mkdir artifacts
   - export TRAVIS_TAG=$(date +'%Y%m%d')-$(git log --format=%h -1)
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      export ARTIFACT_NAME=linux-${TRAVIS_TAG}.tar.gz;
-      tar -acvf ${ARTIFACT_NAME} -C .build/linux64_gcc/bin/ .;
+      tar -acvf artifacts/linux64-${TRAVIS_TAG}.tar.xz -C .build/linux64_gcc/bin/ .;
     elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      export ARTIFACT_NAME=macos-${TRAVIS_TAG}.tar.gz;
-      tar zcvf ${ARTIFACT_NAME} -C .build/osx64_clang/bin/ .;
+      tar -cJf artifacts/osx64-${TRAVIS_TAG}.tar.xz -C .build/osx64_clang/bin/ .;
     fi
 
 deploy:
@@ -55,7 +54,7 @@ deploy:
     secure: xBT3TQ6vxqiDnq6zdmCeN0uBQ2eOqMWXPT46IjokeJOngZkh/easxyv6FqaZuMCOVcOzOsfG7nx9+1ecoG0iykZ3on4UF/bLLL7JH+w5tOI9MzqMB8qbxq1w3H6GWWk+hXKXOKSBid2zsWeSkHAuZP2a1vps07S+fuzMYlkvQerwpSQTZ2LocyWrksB7U+d/cvw4sQX95Tz5zbvjTugrdMpPaKFz4aMBxBIFDrgMl9u2WEYdp/xFTxkkfvufKXhRD3clAInwJ6ja1V0SvA4sDET5+JF3MMM2uSopAuqDeQlq2v6+kbjBqXNTZBRLYyI/KYTdyy9PW9RVjsZCRerDLHdXdsB2tFiC9E5blsTYJ4eT6qaf+mCzo1ndWGXnfhlbKMZK/Waa6n7LwtEVNkPRqH6r5gP0dT2QqBN9+VPTsiVicUM1W8nXhi/f/QB8MG0r9a2dbFhjxfRZrO6SUM53RpnDX/zlqcD3FsckMSsq4uL7S3CvmoNXhjUcRdFFgchmfmZtSAaM9vx+ZMJnvxl9PQpVxp3u6hHZj14v6NzTOcnbV3WEzSO/Lo33gv2Q7+FFETBhmAPlWqb06kMS+Zy1jGX9XT1VqVxNbocDntwaEbpd8b8ZnTdqEffFHD49YRXPKJqc4eQ+MTM9PYBTlS3OmsLZ1O7tWaP5XebJ2/MxuWw=
   bucket: bgfx
   skip_cleanup: true
-  local_dir: .build/linux64_gcc/bin/
+  local_dir: artifacts
   upload_dir: ${TRAVIS_TAG}
   on:
     repo: Saqoosha/bgfx
