@@ -136,6 +136,11 @@ function bgfxProjectBase(_kind, _defines)
 			"EGL_API_FB",
 		}
 
+	configuration { "linux-arm-gcc" }
+		defines {
+			"BGFX_CONFIG_RENDERER_OPENGLES=1"
+		}
+
 	configuration {}
 
 	includedirs {
