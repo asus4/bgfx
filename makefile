@@ -101,13 +101,13 @@ linux-release64: .build/projects/gmake-linux ## Build - Linux x64 Release
 	$(MAKE) -R -C .build/projects/gmake-linux config=release64
 linux: linux-debug64 linux-release64 ## Build - Linux x86/x64 Debug and Release
 
-.build/projects/gmake-linux-arm:
+.build/projects/gmake-linux-arm-gcc:
 	$(GENIE) --gcc=linux-arm-gcc gmake
-linux-debug: .build/projects/gmake-linux-arm-gcc ## Build - Linux ARM Debug
+linux-arm-debug: .build/projects/gmake-linux-arm-gcc ## Build - Linux ARM Debug
 	$(MAKE) -R -C .build/projects/gmake-linux-arm-gcc config=debug
-linux-release: .build/projects/gmake-linux-arm-gcc ## Build - Linux ARM Release
+linux-arm-release: .build/projects/gmake-linux-arm-gcc ## Build - Linux ARM Release
 	$(MAKE) -R -C .build/projects/gmake-linux-arm-gcc config=release
-linux-arm: linux-debug linux-release ## Build - Linux ARM Debug and Release
+linux-arm: linux-arm-debug linux-arm-release ## Build - Linux ARM Debug and Release
 
 .build/projects/gmake-freebsd:
 	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=freebsd gmake
