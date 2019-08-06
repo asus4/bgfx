@@ -5,6 +5,9 @@ matrix:
     - compiler: gcc
       os: linux
       env: TARGET=linux64
+    - compiler: gcc
+      os: linux
+      env: TARGET=linux32-arm
     - compiler: clang
       os: osx
       env: TARGET=osx
@@ -19,6 +22,7 @@ addons:
       - clang
       - mesa-common-dev
       - libgl1-mesa-dev
+      - libx11-dev
 
 branches:
   only:
@@ -31,12 +35,23 @@ osx_image: xcode9.3
 
 # -------------------------------------------------------------
 
+install:
+  - if [ "$TARGET" == "linux32-arm" ]; then
+      curl -L https://releases.linaro.org/components/toolchain/binaries/latest-7/arm-linux-gnueabihf/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf.tar.xz | tar -Jx -C /opt;
+      export PATH=/opt/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf/bin:$PATH;
+    fi
+
 before_script:
   - git clone --depth 1 https://github.com/bkaradzic/bx ../bx
   - git clone --depth 1 https://github.com/bkaradzic/bimg ../bimg
 
 script:
   - if [ "$TARGET" == "linux64" ]; then make build CXX="g++-8" CC="gcc-8"; fi
+  - if [ "$TARGET" == "linux32-arm" ]; then
+      ln -s /usr/include/X11 ./3rdparty/;
+      ../bx/tools/bin/linux/genie --gcc=linux-arm-gcc gmake;
+      make -R -C .build/projects/gmake-linux-arm-gcc/ config=debug CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ AR=arm-linux-gnueabihf-ar;
+    fi
   - if [ "$TARGET" == "osx" ]; then make build; fi
 
 before_deploy:
@@ -44,6 +59,8 @@ before_deploy:
   - export TAG=$(date +'%Y%m%d')-$(git log --format=%h -1)
   - if [ "$TARGET" == "linux64" ]; then
       tar -acvf artifacts/linux64-${TAG}.tar.xz -C .build/linux64_gcc/bin/ .;
+    elif [ "$TARGET" == "linux32-arm" ]; then
+      tar -acvf artifacts/linux32-${TAG}.tar.xz -C .build/linux32_arm_gcc/bin/ .;
     elif [ "$TARGET" == "osx" ]; then
       tar -cJf artifacts/osx64-${TAG}.tar.xz -C .build/osx64_clang/bin/ .;
     fi
