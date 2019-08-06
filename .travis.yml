@@ -20,8 +20,8 @@ addons:
       - gcc-8
       - g++-8
       - clang
-      - mesa-common-dev
       - libgl1-mesa-dev
+      - x11proto-core-dev
       - libx11-dev
 
 branches:

@@ -22,27 +22,12 @@ BX_PRAGMA_DIAGNOSTIC_POP()
 
 namespace bgfx
 {
-	static bx::DefaultAllocator s_allocator;
-	bx::AllocatorI* g_allocator = &s_allocator;
-
 	struct TinyStlAllocator
 	{
 		static void* static_allocate(size_t _bytes);
 		static void static_deallocate(void* _ptr, size_t /*_bytes*/);
 	};
 
-	void* TinyStlAllocator::static_allocate(size_t _bytes)
-	{
-		return BX_ALLOC(g_allocator, _bytes);
-	}
-
-	void TinyStlAllocator::static_deallocate(void* _ptr, size_t /*_bytes*/)
-	{
-		if (NULL != _ptr)
-		{
-			BX_FREE(g_allocator, _ptr);
-		}
-	}
 } // namespace bgfx
 
 #define TINYSTL_ALLOCATOR bgfx::TinyStlAllocator
@@ -54,7 +39,7 @@ namespace stl = tinystl;
 
 #include "../../src/shader_spirv.h"
 
-namespace bgfx { namespace spirv
+namespace bgfx { namespace metal
 {
 	const TBuiltInResource resourceLimits =
 	{
@@ -591,8 +576,7 @@ namespace bgfx { namespace spirv
 		{
 			const Uniform& un = uniforms[ii];
 
-			if (un.type != UniformType::Sampler)
-				size = bx::max(size, (uint16_t)(un.regIndex + un.regCount*16));
+			size += un.regCount*16;
 
 			uint8_t nameSize = (uint8_t)un.name.size();
 			bx::write(_writer, nameSize);
@@ -637,11 +621,6 @@ namespace bgfx { namespace spirv
 			);
 
 		shader->setEntryPoint("main");
-		shader->setAutoMapBindings(true);
-		uint32_t bindingOffset = (stage == EShLanguage::EShLangFragment ? 48 : 0);
-		shader->setShiftBinding(glslang::EResUbo, bindingOffset);
-		shader->setShiftBinding(glslang::EResTexture, bindingOffset + 16);
-		shader->setShiftBinding(glslang::EResSampler, bindingOffset + 32);
 
 		const char* shaderStrings[] = { _code.c_str() };
 		shader->setStrings(
@@ -711,7 +690,6 @@ namespace bgfx { namespace spirv
 			{
 				program->buildReflection();
 
-				std::map<std::string, uint32_t> samplerStageMap;
 				if (_firstPass)
 				{
 					// first time through, we just find unused uniforms and get rid of them
@@ -765,75 +743,6 @@ namespace bgfx { namespace spirv
 
 					// recompile with the unused uniforms converted to statics
 					return compile(_options, _version, output.c_str(), _writer, false);
-				}
-				else
-				{
-					// second time, find sampler state and get its stage index
-					bx::Error err;
-					LineReader reader(_code.c_str());
-					while (err.isOk())
-					{
-						char str[4096];
-						int32_t len = bx::read(&reader, str, BX_COUNTOF(str), &err);
-						if (err.isOk())
-						{
-							std::string strLine(str, len);
-							size_t index = strLine.find("uniform ");
-							if (index != std::string::npos)
-							{
-								if (!bx::findIdentifierMatch(strLine.c_str(), "SamplerState").isEmpty() ||
-									!bx::findIdentifierMatch(strLine.c_str(), "SamplerComparisonState").isEmpty())
-								{
-									bx::StringView found = bx::findIdentifierMatch(strLine.c_str(), "register");
-									const char* ptr = found.getPtr() + found.getLength();
-									const char* start = NULL;
-									const char* end = NULL;
-									while (*ptr != ')' && ptr < strLine.c_str() + strLine.size())
-									{
-										if (*ptr >= '0' && *ptr <= '9')
-										{
-											if (start == NULL)
-												start = ptr;
-											end = ptr;
-										}
-										ptr++;
-									}
-									BX_CHECK(start != NULL && end != NULL, "SamplerState should have register number");
-
-									bx::StringView numberString(start, end - start + 1);
-									int32_t regNumber = -1;
-									bx::fromString(&regNumber, numberString);
-									BX_CHECK(regNumber >= 0, "register number should be semi-positive integer");
-
-									found = bx::findIdentifierMatch(strLine.c_str(), "SamplerState");
-									if (found.isEmpty())
-										found = bx::findIdentifierMatch(strLine.c_str(), "SamplerComparisonState");
-
-									ptr = found.getPtr() + found.getLength();
-									start = NULL;
-									end = NULL;
-									while (ptr < strLine.c_str() + strLine.size())
-									{
-										if (*ptr != ' ')
-										{
-											if (start == NULL)
-												start = ptr;
-											end = ptr;
-										}
-										else if (start != NULL)
-										{
-											break;
-										}
-										ptr++;
-									}
-									BX_CHECK(start != NULL && end != NULL, "sampler name cannot be found");
-
-									std::string samplerName(start, end - start + 1);
-									samplerStageMap[samplerName] = regNumber;
-								}
-							}
-						}
-					}
 				}
 
 				UniformArray uniforms;
@@ -931,24 +840,9 @@ namespace bgfx { namespace spirv
 							un.name = uniform_name;
 							un.type = UniformType::Sampler;
 
-							uint32_t texture_binding_index = refl.get_decoration(resource.id, spv::Decoration::DecorationBinding);
-							uint32_t sampler_binding_index = 0;
-							std::string  sampler_name;
-							for (auto& sampler_resource : resourcesrefl.separate_samplers)
-							{
-								sampler_name = refl.get_name(sampler_resource.id);
-								if (sampler_name.size() > 7 &&
-									!bx::strFind(sampler_name.c_str(), uniform_name.c_str()).isEmpty() &&
-									0 == bx::strCmp(sampler_name.c_str() + name.length() - 7, "Sampler"))
-								{
-									sampler_binding_index = refl.get_decoration(sampler_resource.id, spv::Decoration::DecorationBinding);
-									break;
-								}
-							}
-
-							un.num = samplerStageMap[sampler_name];	// want to write stage index
-							un.regIndex = texture_binding_index;	// for sampled image binding index
-							un.regCount = sampler_binding_index;	// for sampler binding index
+							un.num = 0;			// needed?
+							un.regIndex = 0;	// needed?
+							un.regCount = 0;	// needed?
 
 							uniforms.push_back(un);
 						}
@@ -1042,11 +936,11 @@ namespace bgfx { namespace spirv
 		return compiled && linked && validated;
 	}
 
-} // namespace spirv
+} // namespace metal
 
-	bool compileSPIRVShader(const Options& _options, uint32_t _version, const std::string& _code, bx::WriterI* _writer)
+	bool compileMetalShader(const Options& _options, uint32_t _version, const std::string& _code, bx::WriterI* _writer)
 	{
-		return spirv::compile(_options, _version, _code, _writer, true);
+		return metal::compile(_options, _version, _code, _writer, true);
 	}
 
 } // namespace bgfx
