@@ -44,14 +44,11 @@ install:
 before_script:
   - git clone --depth 1 https://github.com/bkaradzic/bx ../bx
   - git clone --depth 1 https://github.com/bkaradzic/bimg ../bimg
+  - ln -s /usr/include/X11 ./3rdparty/;
 
 script:
   - if [ "$TARGET" == "linux64" ]; then make build CXX="g++-8" CC="gcc-8"; fi
-  - if [ "$TARGET" == "linux32-arm" ]; then
-      ln -s /usr/include/X11 ./3rdparty/;
-      ../bx/tools/bin/linux/genie --gcc=linux-arm-gcc gmake;
-      make -R -C .build/projects/gmake-linux-arm-gcc/ config=debug CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ AR=arm-linux-gnueabihf-ar;
-    fi
+  - if [ "$TARGET" == "linux32-arm" ]; then make linux-arm CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ AR=arm-linux-gnueabihf-ar; fi
   - if [ "$TARGET" == "osx" ]; then make build; fi
 
 before_deploy:
@@ -60,7 +57,7 @@ before_deploy:
   - if [ "$TARGET" == "linux64" ]; then
       tar -acvf artifacts/linux64-${TAG}.tar.xz -C .build/linux64_gcc/bin/ .;
     elif [ "$TARGET" == "linux32-arm" ]; then
-      tar -acvf artifacts/linux32-${TAG}.tar.xz -C .build/linux32_arm_gcc/bin/ .;
+      tar -acvf artifacts/linux32-arm-${TAG}.tar.xz -C .build/linux32_arm_gcc/bin/ .;
     elif [ "$TARGET" == "osx" ]; then
       tar -cJf artifacts/osx64-${TAG}.tar.xz -C .build/osx64_clang/bin/ .;
     fi
