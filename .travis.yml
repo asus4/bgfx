@@ -4,8 +4,10 @@ matrix:
   include:
     - compiler: gcc
       os: linux
+      env: TARGET=linux64
     - compiler: clang
       os: osx
+      env: TARGET=osx
 
 addons:
   apt:
@@ -34,16 +36,16 @@ before_script:
   - git clone --depth 1 https://github.com/bkaradzic/bimg ../bimg
 
 script:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make build CXX="g++-8" CC="gcc-8"; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then make build; fi
+  - if [ "$TARGET" == "linux64" ]; then make build CXX="g++-8" CC="gcc-8"; fi
+  - if [ "$TARGET" == "osx" ]; then make build; fi
 
 before_deploy:
   - mkdir artifacts
-  - export TRAVIS_TAG=$(date +'%Y%m%d')-$(git log --format=%h -1)
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      tar -acvf artifacts/linux64-${TRAVIS_TAG}.tar.xz -C .build/linux64_gcc/bin/ .;
-    elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      tar -cJf artifacts/osx64-${TRAVIS_TAG}.tar.xz -C .build/osx64_clang/bin/ .;
+  - export TAG=$(date +'%Y%m%d')-$(git log --format=%h -1)
+  - if [ "$TARGET" == "linux64" ]; then
+      tar -acvf artifacts/linux64-${TAG}.tar.xz -C .build/linux64_gcc/bin/ .;
+    elif [ "$TARGET" == "osx" ]; then
+      tar -cJf artifacts/osx64-${TAG}.tar.xz -C .build/osx64_clang/bin/ .;
     fi
 
 deploy:
@@ -55,6 +57,6 @@ deploy:
   bucket: bgfx
   skip_cleanup: true
   local_dir: artifacts
-  upload_dir: ${TRAVIS_TAG}
+  upload_dir: ${TAG}
   on:
     repo: Saqoosha/bgfx
