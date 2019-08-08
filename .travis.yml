@@ -59,6 +59,18 @@ script:
 
 before_deploy:
   - mkdir artifacts
+  - pushd .build/${OUTDIR}/bin/;
+    mkdir -p Debug Release;
+    for file in *; do
+      if [[ $file == "Debug" ]] || [[ $file == "Release" ]]; then
+        :;
+      elif [[ $file == *"Debug"* ]]; then
+        mv $file Debug/${file/Debug/};
+      elif [[ $file == *"Release"* ]]; then
+        mv $file Release/${file/Release/};
+      fi
+    done;
+    popd
   - export TAG=$(date +'%Y%m%d')-$(git log --format=%h -1)
   - if [ "$TARGET" == "osx" ]; then
       tar -cJf artifacts/${TARGET}-${TAG}.tar.xz -C .build/${OUTDIR}/bin/ .;
