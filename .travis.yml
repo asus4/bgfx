@@ -4,13 +4,19 @@ matrix:
   include:
     - compiler: gcc
       os: linux
-      env: TARGET=linux64
+      env:
+        - TARGET=linux64
+        - OUTDIR=linux64_gcc
     - compiler: gcc
       os: linux
-      env: TARGET=linux32-arm
+      env:
+        - TARGET=linux32-arm
+        - OUTDIR=linux32_arm_gcc
     - compiler: clang
       os: osx
-      env: TARGET=osx
+      env:
+        - TARGET=osx
+        - OUTDIR=osx64_clang
 
 addons:
   apt:
@@ -54,12 +60,10 @@ script:
 before_deploy:
   - mkdir artifacts
   - export TAG=$(date +'%Y%m%d')-$(git log --format=%h -1)
-  - if [ "$TARGET" == "linux64" ]; then
-      tar -acvf artifacts/linux64-${TAG}.tar.xz -C .build/linux64_gcc/bin/ .;
-    elif [ "$TARGET" == "linux32-arm" ]; then
-      tar -acvf artifacts/linux32-arm-${TAG}.tar.xz -C .build/linux32_arm_gcc/bin/ .;
-    elif [ "$TARGET" == "osx" ]; then
-      tar -cJf artifacts/osx64-${TAG}.tar.xz -C .build/osx64_clang/bin/ .;
+  - if [ "$TARGET" == "osx" ]; then
+      tar -cJf artifacts/${TARGET}-${TAG}.tar.xz -C .build/${OUTDIR}/bin/ .;
+    else
+      tar -acvf artifacts/${TARGET}-${TAG}.tar.xz -C .build/${OUTDIR}/bin/ .;
     fi
 
 deploy:
