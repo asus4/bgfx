@@ -2145,6 +2145,7 @@ VK_IMPORT_DEVICE
 				bx::snprintf(s_viewName[ii], BGFX_CONFIG_MAX_VIEW_NAME_RESERVED+1, "%3d   ", ii);
 			}
 
+			g_internalData.context = m_device;
 			return true;
 
 		error:
@@ -3275,6 +3276,7 @@ VK_IMPORT_DEVICE
 		VkSampler getSampler(uint32_t _samplerFlags, uint32_t _mipLevels)
 		{
 			bx::HashMurmur2A hash;
+			hash.begin();
 			hash.add(_samplerFlags);
 			hash.add(_mipLevels);
 			uint32_t hashKey = hash.end();

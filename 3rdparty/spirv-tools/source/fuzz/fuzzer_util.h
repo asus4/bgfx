@@ -74,6 +74,19 @@ bool BlockIsInLoopContinueConstruct(opt::IRContext* context, uint32_t block_id,
 opt::BasicBlock::iterator GetIteratorForBaseInstructionAndOffset(
     opt::BasicBlock* block, const opt::Instruction* base_inst, uint32_t offset);
 
+// The function determines whether adding an edge from |bb_from| to |bb_to| -
+// is legitimate with respect to the SPIR-V rule that a definition must
+// dominate all of its uses.  This is because adding such an edge can change
+// dominance in the control flow graph, potentially making the module invalid.
+bool NewEdgeRespectsUseDefDominance(opt::IRContext* context,
+                                    opt::BasicBlock* bb_from,
+                                    opt::BasicBlock* bb_to);
+
+// Returns true if and only if there is a path to |bb| from the entry block of
+// the function that contains |bb|.
+bool BlockIsReachableInItsFunction(opt::IRContext* context,
+                                   opt::BasicBlock* bb);
+
 }  // namespace fuzzerutil
 
 }  // namespace fuzz
