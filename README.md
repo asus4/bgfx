@@ -49,17 +49,19 @@ Supported compilers:
 Languages:
 
  * [C/C++ API documentation](https://bkaradzic.github.io/bgfx/bgfx.html)
- * [C#/VB/F# language API bindings](https://github.com/MikePopoloski/SharpBgfx)
- * [D language API bindings](https://github.com/DerelictOrg/DerelictBgfx)
+ * [C# language API bindings #1](https://github.com/bkaradzic/bgfx/tree/master/bindings/cs)
+ * [C#/VB/F# language API bindings #2](https://github.com/MikePopoloski/SharpBgfx)
+ * [D language API bindings](https://github.com/GoaLitiuM/bindbc-bgfx)
  * [Go language API bindings](https://github.com/james4k/go-bgfx)
  * [Haskell language API bindings](https://github.com/haskell-game/bgfx)
  * [Lightweight Java Game Library 3 bindings](https://github.com/LWJGL/lwjgl3)
  * [Lua language API bindings](https://github.com/cloudwu/lua-bgfx)
  * [Nim language API bindings](https://github.com/Halsys/nim-bgfx)
- * [Python language API bindings](https://github.com/jnadro/pybgfx#pybgf)
- * [Python language API bindings (alternative)](https://github.com/fbertola/bgfx-python#-----bgfx-python--)
+ * [Python language API bindings #1](https://github.com/fbertola/bgfx-python#-----bgfx-python--)
+ * [Python language API bindings #2](https://github.com/jnadro/pybgfx#pybgfx)
  * [Rust language API bindings](https://github.com/rhoot/bgfx-rs)
  * [Swift language API bindings](https://github.com/stuartcarnie/SwiftBGFX)
+ * [Pascal language API bindings](https://github.com/Akira13641/PasBGFX)
 
 [Building](https://bkaradzic.github.io/bgfx/build.html)
 ----------------------------------------------------
@@ -356,6 +358,23 @@ target="_blank"><img src="http://img.youtube.com/vi/Gz9weuemhDA/0.jpg"
 alt="Heroes of Hammerwatch"
 width="640" height="480" border="0" /></a>
 
+## openblack
+
+An open source reimplementation of the game Black & White (2001).
+
+[OpenBlack](https://github.com/openblack/openblack#openblack)
+
+![openblack](https://user-images.githubusercontent.com/1388267/67631321-93c85380-f88c-11e9-9103-804807844af2.png)
+
+## Cluster
+
+Implementation of Clustered Shading and Physically Based Rendering with the bgfx rendering library.
+
+[Cluster](https://github.com/pezcode/Cluster#cluster)
+
+![cluster](https://raw.githubusercontent.com/pezcode/Cluster/master/images/sponza.jpg)
+
+
 [License (BSD 2-clause)](https://bkaradzic.github.io/bgfx/license.html)
 -----------------------------------------------------------------------
 
@@ -363,7 +382,7 @@ width="640" height="480" border="0" /></a>
 <img align="right" src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png">
 </a>
 
-	Copyright 2010-2019 Branimir Karadzic
+	Copyright 2010-2020 Branimir Karadzic
 	
 	Redistribution and use in source and binary forms, with or without modification,
 	are permitted provided that the following conditions are met:
